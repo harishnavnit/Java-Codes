@@ -13,14 +13,10 @@ import java.awt.TextField;
  */
 public class LoginSuccessful extends Frame {
 
-    TextField c_displayName;
-    Customer    c  = new Customer();
+    Customer  c  = new Customer();
     
     public void init() {
-        Label loginSuccess = new Label("Welcome");
-        c_displayName = new TextField(15);
-        c_displayName.setText(c.getName());
+        Label loginSuccess = new Label("Welcome " + c.getName());
         add(loginSuccess);
-        add(c_displayName);
     }
 }

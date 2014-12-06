@@ -93,14 +93,16 @@ public class LoginScreen extends Applet implements ActionListener {
             try {
                 // Register the driver
                 Class.forName("org.postgresql.Driver");
-                c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/dennis", "dennis", "********");
+                c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/dennis", "dennis", "**********");
             }
             catch (Exception e) {
                 e.printStackTrace();
                 System.err.print("Unable to connect to server"
                         + "\nPlease contact the administrator");
+                System.err.println("Connecting to DataBase Failed");
                 return false;
             }
+            System.out.println("Connected to DataBase successfully");
             return true;
     }
 
@@ -139,24 +141,27 @@ public class LoginScreen extends Applet implements ActionListener {
             // Login Not successful
             loadFrameSettings(success, false);
             loadFrameSettings(failure, true);
+            failure.init();
         }
         else {
             // Login Successful
             loadFrameSettings(success, true);
+            success.init();
             loadFrameSettings(failure, false);
         }
     }
 
     public void handleExitPress() {
+        dbConnected = false;
         System.exit(0);
     }
 
     /* Check for the customer's credentials in the DataBase */
     public boolean customerLogin() throws SQLException {
 
-        boolean entryFoundFlag = false;
+        int countEntryFlag = 0;
 
-        if (establishConnection()) {
+        if (dbConnected) {
             try {
                 s = c.createStatement();
                 ResultSet rs = s.executeQuery("SELECT * from Customer");
@@ -165,9 +170,13 @@ public class LoginScreen extends Applet implements ActionListener {
                     String customerId = rs.getString("c_id");
                     String customerName = rs.getString("c_name");
 
-                    if ((c_name == customerName) && (c_id == customerId)) {
-                        entryFoundFlag = true;
-                        break;
+                    if (c_name.equals(customerName)) {
+                        if (c_id.equals(customerId)) {
+
+                            countEntryFlag ++;
+                            customer.setName(customerName);
+                            customer.setId(customerId);
+                        }
                     }
                 }
             }
@@ -175,7 +184,6 @@ public class LoginScreen extends Applet implements ActionListener {
                 se.printStackTrace();
             }
         }
-
-        return (entryFoundFlag) ? true : false;
+        return (countEntryFlag > 0) ? true : false;
     }
 }
