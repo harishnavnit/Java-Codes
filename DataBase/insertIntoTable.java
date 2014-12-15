@@ -14,7 +14,7 @@ public class insertIntoTable {
 
             s = c.createStatement();
 
-            String sql = "insert into first_table values(3, 'randomShitThree')";
+            String sql = "insert into foo values(3, 'randomShitThree')";
             s.executeUpdate(sql);
 
             s.close();
