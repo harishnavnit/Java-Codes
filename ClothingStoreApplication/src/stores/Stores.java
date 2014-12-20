@@ -14,26 +14,28 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
 
+import customer.login.LoginScreen;
+import clothes.*;
+
+
 public class Stores extends javax.swing.JFrame {
     
+    // SQL variables
     Connection c = null;
     Statement  s = null;
     ResultSet rs = null;
     ResultSetMetaData meta = null;
-
-    // Instantiating the LoginScreen
-    LoginScreen ls = new LoginScreen();
-
+    LoginScreen ls;
+    
+    /* Lists to store the information from the rows and columns of the tables */
+    List<List<String>>  rowList     = new LinkedList<> ();
+    List<String>        columnList  = new LinkedList<> ();
+    
     public Stores() {
+        this.ls = new LoginScreen();
         
-        // Populate the stores data onto the page on startup
-        try {
-            populateData();
-        }
-        catch (Exception e) {
-            System.err.println("Customer Not Logged in.");
-            e.printStackTrace();
-        }
+        populateData();
+        loadStoresTable();
         initComponents();
     }
 
@@ -149,11 +151,11 @@ public class Stores extends javax.swing.JFrame {
                                     .addComponent(storeManagerLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(storeContactNumberLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                             .addGroup(storeDetailsPanelLayout.createSequentialGroup()
-                                .addGap(2, 2, 2)
+                                .addGap(7, 7, 7)
                                 .addComponent(enterStoreButton)
-                                .addGap(59, 59, 59)
+                                .addGap(54, 54, 54)
                                 .addComponent(viewNextStoreButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(53, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         storeDetailsPanelLayout.setVerticalGroup(
             storeDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -161,7 +163,7 @@ public class Stores extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(storeNameDisplayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(storeImageDisplayLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 215, Short.MAX_VALUE)
+                .addComponent(storeImageDisplayLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(17, 17, 17)
                 .addGroup(storeDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(storeIdLabel)
@@ -196,8 +198,7 @@ public class Stores extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void backButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backButtonActionPerformed
-        // TODO add your handling code here:
-        new LoginScreen().setVisible(true);
+        ls.setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_backButtonActionPerformed
 
@@ -207,116 +208,71 @@ public class Stores extends javax.swing.JFrame {
     }//GEN-LAST:event_enterStoreButtonActionPerformed
 
     private void viewNextStoreButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewNextStoreButtonActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_viewNextStoreButtonActionPerformed
 
-    public boolean establishConnection() {
-        
-        /* Attempt connecting to the Data Base */
-            try {
-                // Register the driver
-                Class.forName("org.postgresql.Driver");
-                c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/mydb", "harish", "earlscourt");
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                System.err.print("Unable to connect to server"
-                        + "\nPlease contact the administrator");
-                System.err.println("Connecting to DataBase Failed");
-                return false;
-            }
-            System.out.println("Connected to DataBase successfully");
-            return true;
-    }
-    
     public void populateData() {
-
-        List<List<String>> rowList = new LinkedList<List<String>> ();
-        String sql = "select * from stores";
-
-        if (establishConnection()) {
+        try {
+            Class.forName("org.postgresql.Driver");
+            c = DriverManager.getConnection("jdbc:postgresql://localhost/mydb", "harish", "earlscourt");
+            s = c.createStatement();
+            rs = s.executeQuery("SELECT * from stores");
+            meta = rs.getMetaData();
+            final int col_count = meta.getColumnCount();
             
-            /* Reference : http://goo.gl/ojw0sU */
-            
-            try {
-                // Create and execute query
-                s = c.createStatement();
-                rs = s.executeQuery(sql);
-                meta = rs.getMetaData();
-                final int col_count = meta.getColumnCount();
+            while (rs.next()) {
+                rowList.add(columnList);
                 
-                while (rs.next()) {
+                for (int i = 1; i < col_count; i++) {
+                    Object value = rs.getObject(i);
                     
-                    List<String> columnList = new LinkedList<String> ();
-                    // Add columns to the row
-                    rowList.add(columnList);
-                    
-                    // Update the columns with respective data
-                    for (int col = 1; col <= col_count; col++) {
-                        Object value = rs.getObject(col);
-                        
-                        if (value != null) {
-                            columnList.add(String.valueOf(value));
-                        }
-                        else {
-                            // To keep the columns in sync
-                            columnList.add(null);
-                        }
+                    if (value != null) {
+                        columnList.add(String.valueOf(value));
+                    }
+                    else {
+                        columnList.add(null);
                     }
                 }
-                
-                // Close all open connections
-                s.close();
-                c.close();
-                rs.close();
-                
-                // Load the stores table
-                loadStoresTable(rowList);
-                
-            } catch (Exception e) {
-                System.err.println("Failed to populate data");
-                e.printStackTrace();
             }
-        }
-        else {
-            System.err.println("\nConnection to Database failed ! ");
-        }
+            
+            // Closing all open connections
+            s.close();
+            c.close();
+            rs.close();
+        } catch (Exception e) {
+            System.err.println("\nFailed to populate Data");
+            e.printStackTrace();
+        }        
     }
     
-    public void loadStoresTable(List<List<String>> r_list) {
-
-        for(int i = 0; i < r_list.size(); i++) {
-            
+    public void loadStoresTable() {
+        for(int i = 0; i < rowList.size(); i++) {  
             int j = 0;
-            List<String> cols = r_list.get(i);
+            List<String> cols = rowList.get(i);
+            String curr_val = cols.get(i);
             
             do  {
-                
-                String ch;
-                Scanner in = new Scanner(System.in);
-                System.out.print("\nNext ? ");
-                ch = in.nextLine();
-                
-                if (ch.equals("Y") || ch.equals("y"))
-                    ++j;
-                
-                
-                String test;
-                test = cols.get(i);
                 System.out.print("\nElement at " + j + " = " + cols.get(j));
                 
-                if (j % 5 == 0)     storeIdLabel.setText(test);
-                if (j % 5 == 1)     storeNameLabel.setText(test);
-                if (j % 5 == 2)     storeAddressLabel.setText(test);
-                if (j % 5 == 3)     storeManagerLabel.setText(test);
-                if (j % 5 == 4)     storeContactNumberLabel.setText(test);
+                if (j < 5) {
+                    if (j == 0)     storeIdLabel.setText(curr_val);
+                    if (j == 1)     storeNameLabel.setText(curr_val);
+                    if (j == 2)     storeAddressLabel.setText(curr_val);
+                    if (j == 3)     storeManagerLabel.setText(curr_val);
+                    if (j == 4)     storeContactNumberLabel.setText(curr_val);
+                }
+                else {
+                    if (j % 5 == 0)     storeIdLabel.setText(curr_val);
+                    if (j % 5 == 1)     storeNameLabel.setText(curr_val);
+                    if (j % 5 == 2)     storeAddressLabel.setText(curr_val);
+                    if (j % 5 == 3)     storeManagerLabel.setText(curr_val);
+                    if (j % 5 == 4)     storeContactNumberLabel.setText(curr_val);                
+                }
               
+                // Increment j onViewNextButton press
+                //if (viewNextStoreButtonActionPerformed()) ++j;
+                j++;
             }   while (j < cols.size());
-            
-            /** for loop works, prints content on the console
-            for (j = 0 ; j < cols.size(); j++) {
-                System.out.print("\nElement at " + j + " = " + cols.get(j));
-            }*/
         }
     }
     
@@ -346,6 +302,7 @@ public class Stores extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
+            @Override
             public void run() {
                 new Stores().setVisible(true);
             }

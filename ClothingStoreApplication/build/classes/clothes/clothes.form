@@ -47,12 +47,10 @@
                               <Component id="clothTypeInfoLabel" alignment="0" max="32767" attributes="0"/>
                               <Component id="clothColorInfoLabel" alignment="0" max="32767" attributes="0"/>
                               <Component id="clothSizeInfoLabel" alignment="0" max="32767" attributes="0"/>
-                              <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
-                                  <Component id="clothPriceInfoLabel" alignment="0" max="32767" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
-                                      <Component id="clothBackButton" min="-2" pref="60" max="-2" attributes="0"/>
-                                  </Group>
+                              <Component id="clothPriceInfoLabel" alignment="0" max="32767" attributes="0"/>
+                              <Group type="102" alignment="0" attributes="0">
+                                  <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
+                                  <Component id="clothBackButton" min="-2" pref="60" max="-2" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="103" groupAlignment="0" attributes="0">
@@ -207,6 +205,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="View Next"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clothNextButtonActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="clothDisplayLabel">
           <Properties>

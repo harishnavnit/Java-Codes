@@ -7,19 +7,27 @@ package clothes;
 
 import java.awt.Color;
 import java.sql.*;
+import java.util.LinkedList;
+import java.util.List;
 import javax.swing.JFrame;
 import stores.Stores;
 
 public class clothes extends javax.swing.JFrame {
 
     // SQL variables
-    Connection c = null;
-    Statement  s = null;
-    ResultSet rs = null;
+    Connection          c = null;
+    Statement           s = null;
+    ResultSet           rs = null;
+    ResultSetMetaData   meta = null;
+    
+    /* Lists to contain data */
+    List<List<String>>  rowList     = new LinkedList<> ();
+    List<String>        columnList  = new LinkedList<> ();
     
     public clothes() {
         initComponents();
-        this.setBackground(Color.yellow);
+        populateData();
+        loadClothesTable();
     }
 
     @SuppressWarnings("unchecked")
@@ -87,6 +95,11 @@ public class clothes extends javax.swing.JFrame {
         });
 
         clothNextButton.setText("View Next");
+        clothNextButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clothNextButtonActionPerformed(evt);
+            }
+        });
 
         clothDisplayLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/stores/stack-o-shirts.jpg"))); // NOI18N
 
@@ -103,11 +116,10 @@ public class clothes extends javax.swing.JFrame {
                             .addComponent(clothTypeInfoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(clothColorInfoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(clothSizeInfoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(storePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(clothPriceInfoLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, storePanelLayout.createSequentialGroup()
-                                    .addGap(25, 25, 25)
-                                    .addComponent(clothBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(clothPriceInfoLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(storePanelLayout.createSequentialGroup()
+                                .addGap(25, 25, 25)
+                                .addComponent(clothBackButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(storePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(storePanelLayout.createSequentialGroup()
                                 .addGap(33, 33, 33)
@@ -163,6 +175,70 @@ public class clothes extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    public void populateData() {
+        try {
+            Class.forName("org.postgresql.Driver");
+            c = DriverManager.getConnection("jdbc:postgresql://localhost/mydb", "harish", "earlscourt");
+            s = c.createStatement();
+            rs = s.executeQuery("SELECT * from stores");
+            meta = rs.getMetaData();
+            final int col_count = meta.getColumnCount();
+            
+            while (rs.next()) {
+                rowList.add(columnList);
+                
+                for (int i = 1; i < col_count; i++) {
+                    Object value = rs.getObject(i);
+                    
+                    if (value != null) {
+                        columnList.add(String.valueOf(value));
+                    }
+                    else {
+                        columnList.add(null);
+                    }
+                }
+            }
+            
+            // Closing all open connections
+            s.close();
+            c.close();
+            rs.close();
+        } catch (Exception e) {
+            System.err.println("\nFailed to populate Data");
+            e.printStackTrace();
+        }
+    }
+    
+    public void loadClothesTable() {
+        for(int i = 0; i < rowList.size(); i++) {  
+            int j = 0;
+            List<String> cols = rowList.get(i);
+            String curr_val = cols.get(i);
+            
+            do  {
+                System.out.print("\nElement at " + j + " = " + cols.get(j));
+                
+                if (j < 5) {
+                    if (j == 0)     clothIdLabel.setText(curr_val);
+                    if (j == 1)     clothTypeLabel.setText(curr_val);
+                    if (j == 2)     clothColorLabel.setText(curr_val);
+                    if (j == 3)     clothSizeLabel.setText(curr_val);
+                    if (j == 4)     clothPriceLabel.setText(curr_val);
+                }
+                else {
+                    if (j % 5 == 0)     clothIdLabel.setText(curr_val);
+                    if (j % 5 == 1)     clothTypeLabel.setText(curr_val);
+                    if (j % 5 == 2)     clothColorLabel.setText(curr_val);
+                    if (j % 5 == 3)     clothSizeLabel.setText(curr_val);
+                    if (j % 5 == 4)     clothPriceLabel.setText(curr_val);                
+                }
+                // Increment j onViewNextButton press
+                //if (viewNextStoreButtonActionPerformed()) ++j;
+                j++;
+            }   while (j < cols.size());
+        }
+    }
+    
     private void purchaseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_purchaseButtonActionPerformed
         new purchaseHistory().setVisible(true);
         this.setVisible(false);
@@ -172,6 +248,10 @@ public class clothes extends javax.swing.JFrame {
         new Stores().setVisible(true);
         this.setVisible(false);
     }//GEN-LAST:event_clothBackButtonActionPerformed
+
+    private void clothNextButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clothNextButtonActionPerformed
+        loadClothesTable();
+    }//GEN-LAST:event_clothNextButtonActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

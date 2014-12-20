@@ -27,7 +27,6 @@ public class LoginScreen extends javax.swing.JFrame {
         // Establish a conneciton on startup
         dbConnected = establishConnection();
         initComponents();
-        errorMsg.setVisible(false);
     }
 
     @SuppressWarnings("unchecked")
@@ -95,6 +94,7 @@ public class LoginScreen extends javax.swing.JFrame {
 
         errorMsg.setForeground(new java.awt.Color(255, 3, 0));
         errorMsg.setText("Invalid username and/or password");
+        errorMsg.setVisible(false);
 
         imageLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/customer/login/user_lock.png"))); // NOI18N
 
@@ -127,12 +127,12 @@ public class LoginScreen extends javax.swing.JFrame {
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, loginScreenPanelLayout.createSequentialGroup()
                                     .addGap(18, 18, 18)
                                     .addComponent(clearButton, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGap(34, 34, 34)
+                                    .addGap(43, 43, 43)
                                     .addComponent(enterButton, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(loginScreenPanelLayout.createSequentialGroup()
                                 .addGap(18, 18, 18)
                                 .addComponent(imageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 311, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(41, Short.MAX_VALUE))))
         );
         loginScreenPanelLayout.setVerticalGroup(
             loginScreenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -256,7 +256,7 @@ public class LoginScreen extends javax.swing.JFrame {
         homeScreenPanelLayout.setVerticalGroup(
             homeScreenPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, homeScreenPanelLayout.createSequentialGroup()
-                .addContainerGap(24, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(homeScreenWelcomeLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 312, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -325,30 +325,30 @@ public class LoginScreen extends javax.swing.JFrame {
         if (dbConnected) {
             try {
                 s = c.createStatement();
-                ResultSet rs = s.executeQuery("SELECT * from customer");
-                while(rs.next()) {
-                    String customerId   = rs.getString("c_id");
-                    String customerName = rs.getString("c_name");
-                    String customerAddr = rs.getString("c_address");
-                    int    customerAge  = rs.getInt("c_age");
-                    int    customerContact = rs.getInt("c_contactnumber");
-
-                    if (c_name.equals(customerName)) {
-                        if (c_id.equals(customerId)) {
-                            countEntryFlag ++;
-                            errorMsg.setVisible(false);
-                            modifyHomeScreen(customerName, customerId, customerAddr, customerAge, customerContact);
+                try (ResultSet rs = s.executeQuery("SELECT * from customer")) {
+                    while(rs.next()) {
+                        String customerId   = rs.getString("c_id");
+                        String customerName = rs.getString("c_name");
+                        String customerAddr = rs.getString("c_address");
+                        int    customerAge  = rs.getInt("c_age");
+                        int    customerContact = rs.getInt("c_contactnumber");
+                        
+                        if (c_name.equals(customerName)) {
+                            if (c_id.equals(customerId)) {
+                                countEntryFlag ++;
+                                errorMsg.setVisible(false);
+                                modifyHomeScreen(customerName, customerId, customerAddr, customerAge, customerContact);
+                            }
+                        }
+                        else {
+                            errorMsg.setVisible(true);
                         }
                     }
-                    else {
-                        errorMsg.setVisible(true);
-                    }
+                    
+                    // Close all open connections
+                    s.close();
+                    c.close();
                 }
-                
-                // Close all open connections
-                s.close();
-                c.close();
-                rs.close();
             }
             catch (SQLException se) {
                 se.printStackTrace();
@@ -413,7 +413,8 @@ public class LoginScreen extends javax.swing.JFrame {
         this.setVisible(false);
     }//GEN-LAST:event_purchaseHistoryButtonActionPerformed
 
-    /** Begining of the main method */
+    /** Begining of the main method
+     * @param args */
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
