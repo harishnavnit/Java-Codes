@@ -5,7 +5,6 @@
 
 package clothes;
 
-import java.awt.Color;
 import java.sql.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,8 +25,15 @@ public class clothes extends javax.swing.JFrame {
     
     public clothes() {
         initComponents();
-        populateData();
-        loadClothesTable();
+        
+        try {
+            populateData();
+            loadClothesTable();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -209,6 +215,9 @@ public class clothes extends javax.swing.JFrame {
         }
     }
     
+    /**
+     *
+     */
     public void loadClothesTable() {
         for(int i = 0; i < rowList.size(); i++) {  
             int j = 0;
@@ -217,7 +226,7 @@ public class clothes extends javax.swing.JFrame {
             
             do  {
                 System.out.print("\nElement at " + j + " = " + cols.get(j));
-                
+                curr_val = cols.get(j);
                 if (j < 5) {
                     if (j == 0)     clothIdLabel.setText(curr_val);
                     if (j == 1)     clothTypeLabel.setText(curr_val);

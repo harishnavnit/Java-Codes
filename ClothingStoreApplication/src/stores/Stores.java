@@ -33,10 +33,15 @@ public class Stores extends javax.swing.JFrame {
     
     public Stores() {
         this.ls = new LoginScreen();
-        
-        populateData();
-        loadStoresTable();
         initComponents();
+        try {
+            populateData();
+            loadStoresTable();        
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -131,7 +136,7 @@ public class Stores extends javax.swing.JFrame {
                 .addGap(150, 150, 150))
             .addGroup(storeDetailsPanelLayout.createSequentialGroup()
                 .addGap(28, 28, 28)
-                .addGroup(storeDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(storeDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(storeImageDisplayLabel)
                     .addGroup(storeDetailsPanelLayout.createSequentialGroup()
                         .addGroup(storeDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -155,16 +160,16 @@ public class Stores extends javax.swing.JFrame {
                                 .addComponent(enterStoreButton)
                                 .addGap(54, 54, 54)
                                 .addComponent(viewNextStoreButton, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
         storeDetailsPanelLayout.setVerticalGroup(
             storeDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(storeDetailsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(storeNameDisplayLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(storeImageDisplayLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(17, 17, 17)
+                .addGap(11, 11, 11)
                 .addGroup(storeDetailsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(storeIdLabel)
                     .addComponent(storeIdInfoLabel))
@@ -246,14 +251,15 @@ public class Stores extends javax.swing.JFrame {
     }
     
     public void loadStoresTable() {
+        storeNameLabel.setText("aaa");
         for(int i = 0; i < rowList.size(); i++) {  
             int j = 0;
             List<String> cols = rowList.get(i);
             String curr_val = cols.get(i);
-            
+            System.out.println(curr_val);
             do  {
                 System.out.print("\nElement at " + j + " = " + cols.get(j));
-                
+                curr_val = cols.get(j);
                 if (j < 5) {
                     if (j == 0)     storeIdLabel.setText(curr_val);
                     if (j == 1)     storeNameLabel.setText(curr_val);
